@@ -122,6 +122,7 @@ def gradient_descent_RDPG(A,X,M, tol=1e-3):
     k=0
     last_jump=1
     d = -gradient(A,Xd,M)
+    tol = tol*(la.norm(d))
     while (la.norm(d) > tol) & (last_jump > 1e-16) & (k<max_iter):
 
         # Armijo
