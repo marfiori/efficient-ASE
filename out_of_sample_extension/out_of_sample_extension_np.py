@@ -13,7 +13,7 @@ from graspologic.embed import AdjacencySpectralEmbed
 # import ase_opt
 import spectral_embedding_methods as sem
 
-class out_of_sample_extension_np():
+class OutOfSampleExtensionNp():
     """
     An class that in initialized with an adjacency matrix, and then it has several methods 
     to update the corresponding embedding(s)

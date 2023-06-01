@@ -10,11 +10,9 @@ import networkx as nx
 import numpy as np
 import logging as lg
 
-# import ase_opt
-import spectral_embedding_methods as sem
-import out_of_sample_extension_np as ose
+from out_of_sample_extension.out_of_sample_extension_np import OutOfSampleExtensionNp
 
-class out_of_sample_extension_nx():
+class OutOfSampleExtensionNx():
     """
     An class that in initialized with a graph, and then it has several methods 
     to update the corresponding embedding(s)
@@ -66,9 +64,9 @@ class out_of_sample_extension_nx():
             mask = nx.to_numpy_array(graph, nodelist=self.nodes_in_order, weight=self.unknown_edge_attr)
             M = np.ones_like(mask) - np.eye(mask.shape[0]) - mask
             
-        self.ose = ose.out_of_sample_extension_np(nx.to_numpy_array(graph,nodelist=self.nodes_in_order),
-                                                  initial_embedding_method=initial_embedding_method, M=M,
-                                                  d=d, max_iter=max_iter, tol=tol, b=b, sigma=sigma, t=t)
+        self.ose = OutOfSampleExtensionNp(nx.to_numpy_array(graph,nodelist=self.nodes_in_order),
+                                          initial_embedding_method=initial_embedding_method, M=M,
+                                          d=d, max_iter=max_iter, tol=tol, b=b, sigma=sigma, t=t)
         
         
     def get_embeddings(self):
