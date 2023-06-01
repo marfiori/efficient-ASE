@@ -162,3 +162,4 @@ cython_debug/
 # Eclipse projects
 *.project
 *.pydevproject
+*.settings
