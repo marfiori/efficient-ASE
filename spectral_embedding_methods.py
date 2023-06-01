@@ -137,7 +137,7 @@ def gradient_descent_RDPG(A,X,M, tol=1e-3):
     return(Xd)
 
 
-def gradient_descent_GRDPG(A,X,Q,M,tol=1e-3):
+def gradient_descent_GRDPG(A, X, Q, M, max_iter=100, tol=1e-3, b=0.3, sigma=0.1, t=0.1):
     """
     Solves the problem min ||(A-XQX^T)*M||_F^2 by classical gradient descent.
     Here * is the entry-wise product.
@@ -148,7 +148,11 @@ def gradient_descent_GRDPG(A,X,Q,M,tol=1e-3):
     X : initialization
     Q : diagonal matrix with elements +1 or -1
     M : mask matrix nxn
-    tol: tolerance used in the stop criterion  
+    max_iter: maximum number of iterations
+    tol: tolerance used in the stop criterion
+    b: beta parameter for the Armijo stepsize rule
+    sigma: sigma parameter for the Armijo stepsize rule
+    t: initial stepsize for the Armijo rule
         
     Returns
     -------
@@ -156,9 +160,6 @@ def gradient_descent_GRDPG(A,X,Q,M,tol=1e-3):
         solution of the embedding problem
     """
 
-    b=0.3; sigma=0.1 # Armijo parameters
-    max_iter = 100
-    t = 0.1
     Xd=X
     k=0
     last_jump=1
@@ -176,7 +177,7 @@ def gradient_descent_GRDPG(A,X,Q,M,tol=1e-3):
         d = -gradient_GRDPG(A,Xd,Q,M)
     return(Xd)
 
-def orthogonal_gradient_descent_DRDPG(A,Xl,Xr,M, max_iter = 100, tol=1e-6):
+def orthogonal_gradient_descent_DRDPG(A, Xl, Xr, M, max_iter = 100, tol=1e-6, b = 0.3, sigma = 0.1, t = 0.1):
     """
     Solves the directed RDPGs embedding problem min ||(A - Xl Xr^T)*M||_F^2 with the constraint of Xl and Xr having orthogonal columns,
     by gradient descent on the Riemannian manifold of matrices with orthogonal columns.
@@ -190,14 +191,15 @@ def orthogonal_gradient_descent_DRDPG(A,Xl,Xr,M, max_iter = 100, tol=1e-6):
     M : mask matrix nxn
     max_iter: maximum number of iterations
     tol: tolerance used in the stop criterion  
+    b: beta parameter for the Armijo stepsize rule
+    sigma: sigma parameter for the Armijo stepsize rule
+    t: initial stepsize for the Armijo rule
         
     Returns
     -------
     Matrices Xl and Xr
         solution of the embedding problem
     """
-    b=0.3; sigma=0.1 # Armijo parameters
-    t = 0.1
     k=0
     last_jump=1
     manifold = Stiefel_tilde(Xl.shape[0],Xl.shape[1])
@@ -205,7 +207,6 @@ def orthogonal_gradient_descent_DRDPG(A,Xl,Xr,M, max_iter = 100, tol=1e-6):
     Gl = manifold.projection(Xl,-( (Xl@Xr.T-A)*M )@Xr)
     Gr = manifold.projection(Xr,-(( (Xl@Xr.T-A)*M ).T)@Xl)
 
-    # TODO why is this necessary??
     max_iter_cost = 100
 
     while (la.norm(Gl) + la.norm(Gr) > tol) & (last_jump > 1e-16) & (k<max_iter):
@@ -234,6 +235,9 @@ def orthogonal_gradient_descent_DRDPG(A,Xl,Xr,M, max_iter = 100, tol=1e-6):
         t=t/(b)
         k=k+1
         
+    # I finally normalize both embeddings
+    # TODO should this be done here?
+    (Xl, Xr) = normalize_rdpg_directive(Xl,Xr)    
     return Xl, Xr
 
 def gradient_descent_DRDPG(A,Xl,Xr,M, tol=1e-6):
@@ -461,3 +465,38 @@ def rsvd(A,r,q,p):
     UY, S, VT = scipy.linalg.svd(Y)
     U = Q @ UY
     return U, S, VT
+
+def align_Xs(X1,X2):
+    """
+    An auxiliary function that Procrustes-aligns two embeddings. 
+    Parameters
+    ----------
+    X1 : an array-like with the embeddings to be aligned
+    X2 : an array-like with the embeddings to align X1 to
+    Returns
+    -------
+    X1_aligned : the aligned version of X1 to X2.
+    """
+    V,_,Wt = la.svd(X1.T@X2)
+    U = V@Wt
+    X1_aligned = X1@U
+    return X1_aligned
+
+def normalize_rdpg_directive(Xhatl,Xhatr):
+    """
+    An auxiliary function to normalize embeddings of directional graphs. 
+    Parameters
+    ----------
+    Xhatl : an array-like with the left embeddings
+    Xhatr : an array-like with the right embeddings
+    Returns
+    -------
+    Xhatl : the normalized left embedding.
+    Xhatr : the normalized right embeddings. 
+    """
+    dims = Xhatl.shape[1]
+    for d in np.arange(dims):
+        factor = np.sqrt(np.linalg.norm(Xhatl[:,d])/np.linalg.norm(Xhatr[:,d]))
+        Xhatl[:,d] = Xhatl[:,d]/factor
+        Xhatr[:,d] = Xhatr[:,d]*factor
+    return (Xhatl, Xhatr)
