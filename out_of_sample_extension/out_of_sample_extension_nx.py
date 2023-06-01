@@ -18,7 +18,7 @@ class OutOfSampleExtensionNx():
     to update the corresponding embedding(s)
     """
     
-    def __init__(self, graph, initial_embedding_method='gp', unknown_edge_attr=None, d=None, max_iter=1000, tol=1e-6, b = 0.3, sigma = 0.1, t = 0.1):
+    def __init__(self, graph, initial_embedding_method='gp', unknown_edge_attr=None, d=None, max_iter=1000, tol=1e-6, b = 0.3, sigma = 0.1, t = 0.1, verbose=True):
         """
         We provide an initial graph, and then a first embedding is estimated
 
@@ -67,6 +67,7 @@ class OutOfSampleExtensionNx():
         self.ose = OutOfSampleExtensionNp(nx.to_numpy_array(graph,nodelist=self.nodes_in_order),
                                           initial_embedding_method=initial_embedding_method, M=M,
                                           d=d, max_iter=max_iter, tol=tol, b=b, sigma=sigma, t=t)
+        self.verbose = verbose
         
         
     def get_embeddings(self):
@@ -105,8 +106,8 @@ class OutOfSampleExtensionNx():
             
             if len(new_nodes)>0:
                 # I gained new nodes
-                print(f"From the original {original_n} nodes you've gained {len(new_nodes)} nodes.")
-                lg.info(f"From the original {original_n} nodes you've gained {len(new_nodes)} nodes.")
+                if self.verbose:
+                    print(f"From the original {original_n} nodes you've gained {len(new_nodes)} nodes.")
                 
                 # the removed nodes will appear as disconnected in adj_matrix_new
                 adj_matrix_new = nx.to_numpy_array(new_G, nodelist=self.nodes_in_order)          
@@ -130,8 +131,8 @@ class OutOfSampleExtensionNx():
             lost_nodes = list(set(self.nodes_in_order) - set(nodes_new_G))
             if len(lost_nodes)>0:
                 # I lost some nodes
-                print(f"From the original {original_n} nodes you've lost {len(lost_nodes)} nodes.")
-                lg.info(f"From the original {original_n} nodes you've lost {len(lost_nodes)} nodes.")
+                if self.verbose:
+                    print(f"From the original {original_n} nodes you've lost {len(lost_nodes)} nodes.")
                 lost_indices = np.array([(n in lost_nodes) for n in self.nodes_in_order])
                 lost_indices = lost_indices.nonzero()[0]
                 
