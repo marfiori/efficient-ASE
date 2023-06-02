@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 '''
+un_votes -- Compute gradient-based embeddings for graphs constructed from the UN General Assembly Voting Data (see https://dataverse.harvard.edu/dataset.xhtml?persistentId=hdl:1902.1/12379).
+    
 Created on May 2, 2023
 
-@author: bernardo
+@author: bmarenco
 '''
 
 import matplotlib.pyplot as plt
@@ -18,8 +20,8 @@ import traceback
 
 __all__ = []
 __version__ = 0.1
-__date__ = '2023-06-01'
-__updated__ = '2023-06-01'
+__date__ = '2023-05-02'
+__updated__ = '2023-06-02'
 
 plt.close(fig='all')
 plt.rcParams['lines.linewidth'] = 3
