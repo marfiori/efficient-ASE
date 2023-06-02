@@ -1,5 +1,7 @@
 # efficient-ASE
 
+![Embeddings for the UN General Assembly Voting Data](UN_embeddings.gif)
+
 Gradient-based ASE implementation, as proposed in "Gradient-Based Spectral Embeddings of Random Dot Product Graphs" (M. Fiori, B. Marenco, F. Larroca, P. Bermolen and G. Mateos, working draft)
 
 ## Installation
