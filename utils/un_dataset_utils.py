@@ -12,6 +12,7 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from cycler import cycler
 
 resolutions_issues = {'me': 'Palestinian conflict', 
                       'nu': 'Nuclear weapons and nuclear material', 
@@ -35,6 +36,8 @@ continents_colors = {'North America': 'yellow',
                      'Africa': 'plum',
                      'Asia': 'darkorange',
                      'Oceania': 'firebrick'}
+
+cycler_colors = ['royalblue','firebrick','forestgreen','olive']
 
 
 def load_un_dataset(un_data_path, initial_year=1946, final_year=2018, remove_nonmembers=True, remove_nonpresent=False, unknown_votes=False):
@@ -170,7 +173,7 @@ def create_un_graphs(votes_df):
             
     return all_graphs, years
 
-def plot_embeddings(graph,Xl,Xr,nodes_in_order,countries_to_show=None, countries_colors=None, plot_resolutions=True, dropna_resolutions=True, ax=None):
+def plot_embeddings(graph,Xl,Xr,nodes_in_order,countries_to_show=None, plot_resolutions=True, dropna_resolutions=True, ax=None):
     
     if ax is None:
         _, ax = plt.subplots(figsize=[12,6],nrows=1,ncols=1)
@@ -184,6 +187,9 @@ def plot_embeddings(graph,Xl,Xr,nodes_in_order,countries_to_show=None, countries
     # Get nodes color from graph attributes
     nodes_colors = np.array([graph.nodes[node]['color'] for node in nodes_in_order])
     
+    # Create custom color cycler and add it to axis
+    custom_cycler = cycler(color=cycler_colors)
+    ax.set_prop_cycle(custom_cycler)
     
     if plot_resolutions:
         if dropna_resolutions:
@@ -211,12 +217,12 @@ def plot_embeddings(graph,Xl,Xr,nodes_in_order,countries_to_show=None, countries
         ax.legend(handles=legend_elements,loc='lower left',fancybox=True, shadow=True, ncol=2, fontsize=26, handletextpad=0.01,columnspacing=0.1,borderpad=0.1)
         
     if countries_to_show is not None:
-        for i,country in enumerate(countries_to_show):
+        for country in countries_to_show:
             if country in countries:
                 country_idx = nodes_in_order.index(country)
                 countries_idxs.remove(country_idx)
-                ax.annotate(graph.nodes[country]['country code'], (Xl[country_idx,0],Xl[country_idx,1]),color=countries_colors[i])
-                ax.scatter(Xl[country_idx,0],Xl[country_idx,1],c=countries_colors[i],marker='o')
+                scatter_paths = ax.scatter(Xl[country_idx,0],Xl[country_idx,1],marker='o')
+                ax.annotate(graph.nodes[country]['country code'], (Xl[country_idx,0],Xl[country_idx,1]), color=scatter_paths.get_facecolors()[0])
                 
         ax.scatter(Xl[countries_idxs,0],Xl[countries_idxs,1],c='lightgray',alpha=0.3,marker='o')
     else:

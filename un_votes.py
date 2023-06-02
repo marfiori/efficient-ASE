@@ -95,8 +95,6 @@ USAGE
         
         if verbose:
             print('Done creating UN dataset')
-    
-        colors = ['royalblue','firebrick','forestgreen','olive']
         
         
         initial_graph = all_graphs[0]
@@ -112,7 +110,8 @@ USAGE
                                          verbose=verbose)
         
         if which_countries is not None:
-            countries_alignment = {country:{} for country in which_countries if country!='United States of America'}
+            first_country = which_countries[0]
+            countries_alignment = {country:{} for country in which_countries if country!=first_country}
         
         for graph, year in zip(all_graphs,years):
             if verbose:
@@ -130,21 +129,23 @@ USAGE
             ax.set_ylim([-2, 2])
             
             
-            ax = plot_embeddings(graph,Xl,Xr,oos.nodes_in_order,countries_to_show=which_countries,
-                                  countries_colors=colors,ax=ax, plot_resolutions=False)
+            ax = plot_embeddings(graph,Xl,Xr,oos.nodes_in_order,countries_to_show=which_countries, ax=ax, plot_resolutions=False)
             ax.set_title(f'{year}')
             
             if which_countries is not None:
                 nodes = oos.nodes_in_order
-                US_idx = nodes.index('United States of America')
-                Xl_us = Xl[US_idx,:]
                 
-                for country in countries_alignment:
-                    if country in nodes:
-                        test_country_idx = nodes.index(country)
-                        Xl_test_country = Xl[test_country_idx,:]
-                        alignment = np.dot(Xl_us,Xl_test_country)/(np.linalg.norm(Xl_us)*np.linalg.norm(Xl_test_country))
-                        countries_alignment[country][year] = alignment
+                if first_country in nodes:
+                    first_country_idx = nodes.index(first_country)
+                    Xl_first_country = Xl[first_country_idx,:]
+                    
+                    for country in countries_alignment:
+                        if country in nodes:
+                            test_country_idx = nodes.index(country)
+                            Xl_test_country = Xl[test_country_idx,:]
+                            alignment = np.dot(Xl_first_country,Xl_test_country)/(np.linalg.norm(Xl_first_country)*np.linalg.norm(Xl_test_country))
+                            countries_alignment[country][year] = alignment
+                        
             if out_path is not None:
                 plt.savefig(out_path+str(year)+'.png',format='png')
                 plt.close()
@@ -158,7 +159,7 @@ USAGE
             for country in countries_alignment:
                 ax_angles.plot(countries_alignment[country].keys(),countries_alignment[country].values(),label=country, linestyle='dashed')
             
-            fig_angles.suptitle('Alignment with US')
+            fig_angles.suptitle(f'Alignment with {which_countries[0]}')
             fig_angles.subplots_adjust(left=0.07,right=0.97,top=0.94,bottom=0.09,hspace=0.06)
             ax_angles.legend(loc='lower left',fancybox=True, shadow=True, ncol=3, fontsize=26, handletextpad=0.01,columnspacing=0.1,borderpad=0.1)
             
