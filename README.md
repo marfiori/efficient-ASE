@@ -18,4 +18,4 @@ Run the UN general assembly votes example:
 
 `python un_votes.py path_to_UN_data_file`
 
-where `path_to_UN_data_file` is your local path to the [UN General Assembly Voting Data](https://dataverse.harvard.edu/dataset.xhtml?persistentId=hdl:1902.1/12379). If it does not exist, it will be downloaded to that path.
+where `path_to_UN_data_file` is your local path to the [UN General Assembly Voting Data](https://dataverse.harvard.edu/dataset.xhtml?persistentId=hdl:1902.1/12379) file. If it does not exist, it will be downloaded to that path.
