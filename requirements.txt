@@ -27,7 +27,6 @@ POT==0.9.0
 pprintpp==0.4.0
 pycountry==22.3.5
 pycountry-convert==0.7.2
-pymanopt==0.1.dev1504+g68a76f3
 pynndescent==0.5.10
 pyparsing==3.0.9
 pytest==7.3.1
