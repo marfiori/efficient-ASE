@@ -6,6 +6,8 @@ Gradient-based ASE implementation, as proposed in "Gradient-Based Spectral Embed
 
 ## Installation
 
+**IMPORTANT**: current implementation is only supported for Python 3.8.
+
 Clone repository and install dependencies using requirements file:
 
 `pip install -r requirements.txt`
