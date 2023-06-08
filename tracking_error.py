@@ -184,8 +184,8 @@ USAGE
         fig.subplots_adjust(left=0.04,right=0.98,top=0.91,bottom=0.11)
         
         if out_path is not None:
-            plt.savefig(out_path+'_error_brand.png',format='png')
-            plt.savefig(out_path+'_error_brand.pdf',format='pdf')
+            plt.savefig(out_path+'error_brand.png',format='png')
+            plt.savefig(out_path+'error_brand.pdf',format='pdf')
             plt.close(fig)
         else:
             plt.show()
