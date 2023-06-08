@@ -162,8 +162,8 @@ USAGE
                     
                     fig.subplots_adjust(wspace=0.045,left=0.08,right=0.98,top=0.86,bottom=0.06)
                     fig.suptitle(f'$\hat{{\mathbf{{X}}}}_t$ at $t = {i}$. ',fontsize=40)
-                    plt.savefig(out_path+'cambio_'+str(i)+'.png',format='png')
-                    plt.savefig(out_path+'cambio_'+str(i)+'.pdf',format='pdf')
+                    plt.savefig(out_path+'change_'+str(i)+'.png',format='png')
+                    plt.savefig(out_path+'change_'+str(i)+'.pdf',format='pdf')
                     plt.close(fig=fig)
                     
         mse_gd_mean = np.mean(mse_gd_array, axis=0)
@@ -184,8 +184,8 @@ USAGE
         fig.subplots_adjust(left=0.04,right=0.98,top=0.91,bottom=0.11)
         
         if out_path is not None:
-            plt.savefig(out_path+'_error.png',format='png')
-            plt.savefig(out_path+'_error.pdf',format='pdf')
+            plt.savefig(out_path+'_error_brand.png',format='png')
+            plt.savefig(out_path+'_error_brand.pdf',format='pdf')
             plt.close(fig)
         else:
             plt.show()
