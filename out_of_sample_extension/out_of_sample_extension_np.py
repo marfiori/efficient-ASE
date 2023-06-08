@@ -67,7 +67,7 @@ class OutOfSampleExtensionNp():
         self.sigma = sigma
         self.t = t
         
-        self.adj_matrix = graph
+        self.adj_matrix = graph.copy()
         
         if initial_embedding_method == 'gp':
             if d is None:
@@ -118,12 +118,12 @@ class OutOfSampleExtensionNp():
                     # print(X0)
                     Q1 = np.eye(dim+1)
                     Q1[0:dim,0:dim] = self.Q
-                    Xhat_1 = sem.coordinate_descent_GRDPG(A=self.adj_matrix, X=np.random.rand(self.n, dim+1),  d=dim+1, Q=Q1, M=self.M,
+                    Xhat_1 = sem.coordinate_descent_GRDPG(A=self.adj_matrix, X=X0[:,0:dim+1],  d=dim+1, Q=Q1, M=self.M,
                                                           tol=self.tol, max_iter = self.max_iter)
                     
                     Qminus1 = -np.eye(dim+1)
                     Qminus1[0:dim,0:dim] = self.Q
-                    Xhat_minus1 = sem.coordinate_descent_GRDPG(A=self.adj_matrix, X=np.random.rand(self.n, dim+1), d=dim+1, Q=Qminus1, M=self.M,
+                    Xhat_minus1 = sem.coordinate_descent_GRDPG(A=self.adj_matrix, X=X0[:,0:dim+1], d=dim+1, Q=Qminus1, M=self.M,
                                                                tol=self.tol, max_iter=self.max_iter)
                     
                     if sem.cost_function_GRDPG(self.adj_matrix,Xhat_1,Q1,self.M) > sem.cost_function_GRDPG(self.adj_matrix,Xhat_minus1,Qminus1,self.M):
