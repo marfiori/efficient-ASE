@@ -118,15 +118,13 @@ class OutOfSampleExtensionNp():
                     # print(X0)
                     Q1 = np.eye(dim+1)
                     Q1[0:dim,0:dim] = self.Q
-                    # Xhat_1 = sem.coordinate_descent_GRDPG(A=self.adj_matrix, X=np.random.rand(self.n, dim+1),  d=dim+1, Q=Q1, M=self.M)
-                    Xhat_1 = sem.coordinate_descent_GRDPG(A=self.adj_matrix, X=X0[:,0:dim+1],  d=dim+1, Q=Q1, M=self.M, max_iter=self.max_iter,
-                                                          tol=self.tol, b=self.b, sigma=self.sigma, t=self.t)
+                    Xhat_1 = sem.coordinate_descent_GRDPG(A=self.adj_matrix, X=np.random.rand(self.n, dim+1),  d=dim+1, Q=Q1, M=self.M,
+                                                          tol=self.tol, max_iter = self.max_iter)
                     
                     Qminus1 = -np.eye(dim+1)
                     Qminus1[0:dim,0:dim] = self.Q
-                    # Xhat_minus1 = sem.coordinate_descent_GRDPG(A=self.adj_matrix, X=np.random.rand(self.n, dim+1), d=dim+1, Q=Qminus1, M=self.M)
-                    Xhat_minus1 = sem.coordinate_descent_GRDPG(A=self.adj_matrix, X=X0[:,0:dim+1], d=dim+1, Q=Qminus1, M=self.M, max_iter=self.max_iter,
-                                                               tol=self.tol, b=self.b, sigma=self.sigma, t=self.t)
+                    Xhat_minus1 = sem.coordinate_descent_GRDPG(A=self.adj_matrix, X=np.random.rand(self.n, dim+1), d=dim+1, Q=Qminus1, M=self.M,
+                                                               tol=self.tol, max_iter=self.max_iter)
                     
                     if sem.cost_function_GRDPG(self.adj_matrix,Xhat_1,Q1,self.M) > sem.cost_function_GRDPG(self.adj_matrix,Xhat_minus1,Qminus1,self.M):
                         self.Q = Qminus1
@@ -134,7 +132,6 @@ class OutOfSampleExtensionNp():
                     else:
                         self.Q = Q1
                         self.Xhat = Xhat_1
-                    print(self.Q)
                     
                     X0[:,0:dim+1] = self.Xhat
 
@@ -207,7 +204,7 @@ class OutOfSampleExtensionNp():
         new_adj_matrix = np.zeros((self.n+new_nodes,self.n+new_nodes))
         new_adj_matrix[0:self.n,0:self.n] = self.adj_matrix
         
-        print("new nodes: "+str(new_nodes))
+        #print("new nodes: "+str(new_nodes))
         
         new_adj_matrix[self.n:,:] = hor_entries
         new_adj_matrix[:,self.n:] = ver_entries
