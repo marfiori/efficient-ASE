@@ -116,18 +116,16 @@ USAGE
                 mse_projection_array[j,i] = mse_projection
         
         
-        mse_gd_mean = np.mean(mse_gd_array, axis=0)
-        mse_gd_quartiles = np.quantile(mse_gd_array,q=[0.25,0.75],axis=0)
-        mse_projection_mean = np.mean(mse_projection_array, axis=0)
-        mse_projection_quartiles = np.quantile(mse_projection_array,q=[0.25,0.75],axis=0)
+        mse_gd_quartiles = np.quantile(mse_gd_array,q=[0.25,0.5,0.75],axis=0)
+        mse_projection_quartiles = np.quantile(mse_projection_array,q=[0.25,0.5,0.75],axis=0)
         
         new_nodes = np.arange(1,n_new+1)
         
         fig,ax = plt.subplots(figsize=(20,10))
-        ax.plot(new_nodes,mse_projection_mean,label='[Levin et al. \'18]',color='darksalmon')
-        ax.fill_between(new_nodes, mse_projection_quartiles[0], mse_projection_quartiles[1], alpha=0.3, facecolor='darksalmon')
-        ax.plot(new_nodes,mse_gd_mean,label='Gradient Descent',color='maroon')
-        ax.fill_between(new_nodes, mse_gd_quartiles[0], mse_gd_quartiles[1], alpha=0.3, facecolor='maroon')
+        ax.plot(new_nodes,mse_projection_quartiles[1],label='[Levin et al. \'18]',color='darksalmon')
+        ax.fill_between(new_nodes, mse_projection_quartiles[0], mse_projection_quartiles[2], alpha=0.3, facecolor='darksalmon')
+        ax.plot(new_nodes,mse_projection_quartiles[1],label='Gradient Descent',color='maroon')
+        ax.fill_between(new_nodes, mse_gd_quartiles[0], mse_gd_quartiles[2], alpha=0.3, facecolor='maroon')
         ax.set_xlabel(r'\# of new nodes',fontsize=32)
         fig.suptitle(r'Evolution of $||\hat{\mathbf{X}}_t\hat{\mathbf{X}}_t^\top - \mathbf{P}_t||_F/\sqrt{N_t}$',fontsize=40)
         ax.legend(fancybox=True, shadow=True,fontsize=32)

@@ -122,13 +122,6 @@ USAGE
             for i in trange(n, desc="Node change error", unit="node changes"):
                 
                 node = indices[i]
-                    
-                P = X_evol@X_evol.T
-                mse_lwi = np.linalg.norm(((oos_lwi.Xhat@oos_lwi.Xhat.T)-P)*oos_lwi.M,ord='fro')
-                mse_gd = np.linalg.norm(((oos_gd.Xhat@oos_gd.Xhat.T)-P)*oos_gd.M,ord='fro')
-                
-                mse_lwi_array[j,i] = mse_lwi
-                mse_gd_array[j,i] = mse_gd
                 
                 X_evol[node,:] = X_final[node,:]
                 new_adj = rdpg(X_evol)
@@ -144,6 +137,13 @@ USAGE
                 
                 oos_lwi.update_adj_matrix_lwi_svd(delta_adj)
                 oos_gd.update_adj_matrix(delta_adj)
+                    
+                P = X_evol@X_evol.T
+                mse_lwi = np.linalg.norm(((oos_lwi.Xhat@oos_lwi.Xhat.T)-P)*oos_lwi.M,ord='fro')
+                mse_gd = np.linalg.norm(((oos_gd.Xhat@oos_gd.Xhat.T)-P)*oos_gd.M,ord='fro')
+                
+                mse_lwi_array[j,i] = mse_lwi
+                mse_gd_array[j,i] = mse_gd
                 
                 if plot_embeddings and out_path is not None:
                     fig, [ax1, ax2] = plt.subplots(nrows=1, ncols=2, sharex=True, sharey=True, figsize=(15,10))
@@ -166,18 +166,16 @@ USAGE
                     plt.savefig(out_path+'change_'+str(i)+'.pdf',format='pdf')
                     plt.close(fig=fig)
                     
-        mse_gd_mean = np.mean(mse_gd_array, axis=0)
-        mse_gd_quartiles = np.quantile(mse_gd_array,q=[0.25,0.75],axis=0)
-        mse_lwi_mean = np.mean(mse_lwi_array, axis=0)
-        mse_lwi_quartiles = np.quantile(mse_lwi_array,q=[0.25,0.75],axis=0)
+        mse_gd_quartiles = np.quantile(mse_gd_array,q=[0.25,0.5,0.75],axis=0)
+        mse_lwi_quartiles = np.quantile(mse_lwi_array,q=[0.25,0.5,0.75],axis=0)
         
         changed_nodes = np.arange(1,n+1)
         
         fig,ax = plt.subplots(figsize=(20,10))
-        ax.plot(changed_nodes,mse_lwi_mean,label='[Brand \'06]',color='darksalmon')
-        ax.fill_between(changed_nodes, mse_lwi_quartiles[0], mse_lwi_quartiles[1], alpha=0.3, facecolor='darksalmon')
-        ax.plot(changed_nodes,mse_gd_mean,label='Gradient Descent',color='maroon')
-        ax.fill_between(changed_nodes, mse_gd_quartiles[0], mse_gd_quartiles[1], alpha=0.3, facecolor='maroon')
+        ax.plot(changed_nodes,mse_lwi_quartiles[1],label='[Brand \'06]',color='darksalmon')
+        ax.fill_between(changed_nodes, mse_lwi_quartiles[0], mse_lwi_quartiles[2], alpha=0.3, facecolor='darksalmon')
+        ax.plot(changed_nodes,mse_gd_quartiles[1],label='Gradient Descent',color='maroon')
+        ax.fill_between(changed_nodes, mse_gd_quartiles[0], mse_gd_quartiles[2], alpha=0.3, facecolor='maroon')
         ax.set_xlabel(r'\# of nodes that changed',fontsize=32)
         fig.suptitle(r'Evolution of $||\hat{\mathbf{X}}_t\hat{\mathbf{X}}_t^\top - \mathbf{P}_t||_F$',fontsize=40)
         ax.legend(fancybox=True, shadow=True,fontsize=32)
