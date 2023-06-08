@@ -74,8 +74,8 @@ USAGE
         # Process arguments
         args = parser.parse_args()
 
-        n_new = args.un_data_path
-        n_runs = args.initial_year
+        n_new = args.n_new
+        n_runs = args.n_runs
         verbose = args.verbose
         out_path = args.out_path
 
