@@ -94,12 +94,12 @@ USAGE
                        (np.sin(theta),  np.cos(theta)) ))
         X_original = np.vstack((X_original_group1,X_original_group2@r))
         
-        X_final_grupo1 = np.hstack((np.ones((int(0.3*n),1))*np.sqrt(0.8),np.zeros((int(0.3*n),1))))
-        X_final_grupo2 = np.hstack((np.ones((int(0.7*n),1))*np.sqrt(0.3),np.zeros((int(0.7*n),1))))
+        X_final_group1 = np.hstack((np.ones((int(0.3*n),1))*np.sqrt(0.8),np.zeros((int(0.3*n),1))))
+        X_final_group2 = np.hstack((np.ones((int(0.7*n),1))*np.sqrt(0.3),np.zeros((int(0.7*n),1))))
         theta = np.radians(70)
         r = np.array(( (np.cos(theta), -np.sin(theta)),
                        (np.sin(theta),  np.cos(theta)) ))
-        X_final = np.vstack((X_final_grupo1,X_final_grupo2@r))
+        X_final = np.vstack((X_final_group1,X_final_group2@r))
         
         indices = np.arange(n)
         
