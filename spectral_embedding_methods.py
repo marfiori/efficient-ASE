@@ -177,6 +177,48 @@ def gradient_descent_GRDPG(A, X, Q, M, max_iter=100, tol=1e-3, b=0.3, sigma=0.1,
         d = -gradient_GRDPG(A,Xd,Q,M)
     return(Xd)
 
+def coordinate_descent_GRDPG(A,d,Q,M=None,X=None,max_iter=100,tol=1e-5):
+    """
+    Solves the problem  min ||(A-XQX^T)*M||_F^2
+    by block coordinate descent.
+    
+    Returns X, solution of min ||(A-XQX^T)*M||_F^2
+    
+    Parameters
+    ----------
+    A : matrix nxn
+    d : dimension of the embedding
+    Q : diagonal matrix with values +1 or -1
+    M : mask matrix
+    X : initialization
+    max_iter: maximum number of iterations
+    tol: tolerance used in the stop criterion  
+        
+    Returns
+    -------
+    Matrix X
+        solution of the embedding problem
+    """
+    
+    n=A.shape[0]
+    if X is None:
+        X = np.random.rand(n,d)
+    else:
+        X = X.copy()
+    if M is None:
+        M = np.ones(n) - np.eye(n)
+    fold = 1
+    
+    k = 0
+
+    while (abs((fold - cost_function_GRDPG(A, X, Q, M))/fold) >tol) & (k<max_iter):
+        fold = cost_function_GRDPG(A, X, Q, M)
+        for i in range(n):
+            k2 = Q@(np.broadcast_to([M[i,:]], (d, n))*X.T)
+            X[i,:] = solve_linear_system(k2@k2.T,(M*A)[i,:]@X@Q,X[i,:])
+        k=k+1
+    return X
+
 def orthogonal_gradient_descent_DRDPG(A, Xl, Xr, M, max_iter = 100, tol=1e-6, b = 0.3, sigma = 0.1, t = 0.1):
     """
     Solves the directed RDPGs embedding problem min ||(A - Xl Xr^T)*M||_F^2 with the constraint of Xl and Xr having orthogonal columns,
