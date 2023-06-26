@@ -119,6 +119,9 @@ USAGE
             np.random.shuffle(indices)
             X_evol = X_original
             
+            last_Xhat_gd = None
+            last_Xhat_lwi = None
+            
             for i in trange(n, desc="Node change error", unit="node changes"):
                 
                 node = indices[i]
@@ -145,41 +148,61 @@ USAGE
                 mse_lwi_array[j,i] = mse_lwi
                 mse_gd_array[j,i] = mse_gd
                 
-                if plot_embeddings and out_path is not None:
-                    fig, [ax1, ax2] = plt.subplots(nrows=1, ncols=2, sharex=True, sharey=True, figsize=(15,10))
+                if plot_embeddings and out_path is not None and last_Xhat_gd is not None:
+                    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10,10))
                         
-                    ax1.set_xlim([-1.1, 1.1])
-                    ax1.set_ylim([-1, 1])
+                    ax.set_xlim([-1.1, 1.1])
+                    ax.set_ylim([-1.25, 1])
                     
-                    ax1.scatter(oos_gd.Xhat[:,0],oos_gd.Xhat[:,1],color='maroon') 
-                    ax1.set_title('Gradient Descent',fontsize=36)
-                    ax1.grid()
+                    ax.scatter(last_Xhat_gd[:,0],last_Xhat_gd[:,1],color='royalblue', label= f'GD at $t={i-1}$') 
+                    ax.scatter(oos_gd.Xhat[:,0],oos_gd.Xhat[:,1],color='maroon',alpha=0.5,marker='X',label= f'GD at $t={i}$') 
+                    ax.scatter(last_Xhat_lwi[:,0],last_Xhat_lwi[:,1],color='darksalmon',label= f'[Brand \'06] at $t={i-1}$')
+                    ax.scatter(oos_lwi.Xhat[:,0],oos_lwi.Xhat[:,1],color='lightsalmon',marker='X',label= f'[Brand \'06] at $t={i}$') 
                     
-                
-                    ax2.scatter(oos_lwi.Xhat[:,0],oos_lwi.Xhat[:,1],color='darksalmon') 
-                    ax2.set_title('[Brand \'06]',fontsize=36)
-                    ax2.grid()
+                    ax.legend(fancybox=True, shadow=True,fontsize=32,ncol=2, handletextpad=0.01,columnspacing=0.1,borderpad=0.1)
+            
                     
-                    fig.subplots_adjust(wspace=0.045,left=0.08,right=0.98,top=0.86,bottom=0.06)
-                    fig.suptitle(f'$\hat{{\mathbf{{X}}}}_t$ at $t = {i}$. ',fontsize=40)
+                    fig.subplots_adjust(wspace=0.045,left=0.11,right=0.98,top=0.96,bottom=0.06)
+                    #fig.suptitle(f'$\hat{{\mathbf{{X}}}}_t$ at $t = {i} (darker)$. ',fontsize=40)
                     plt.savefig(out_path+'change_'+str(i)+'.png',format='png')
                     plt.savefig(out_path+'change_'+str(i)+'.pdf',format='pdf')
+                    plt.show()
                     plt.close(fig=fig)
+                
+                if i==0:
+                    first_Xhat_gd = oos_gd.Xhat
+                    first_Xhat_lwi = oos_lwi.Xhat
+                elif i==1:
+                    second_Xhat_gd = oos_gd.Xhat
+                    second_Xhat_lwi = oos_lwi.Xhat
+                last_Xhat_gd = oos_gd.Xhat
+                last_Xhat_lwi = oos_lwi.Xhat
                     
         mse_gd_quartiles = np.quantile(mse_gd_array,q=[0.25,0.5,0.75],axis=0)
         mse_lwi_quartiles = np.quantile(mse_lwi_array,q=[0.25,0.5,0.75],axis=0)
         
         changed_nodes = np.arange(1,n+1)
         
-        fig,ax = plt.subplots(figsize=(20,10))
-        ax.plot(changed_nodes,mse_lwi_quartiles[1],label='[Brand \'06]',color='darksalmon')
-        ax.fill_between(changed_nodes, mse_lwi_quartiles[0], mse_lwi_quartiles[2], alpha=0.3, facecolor='darksalmon')
-        ax.plot(changed_nodes,mse_gd_quartiles[1],label='Gradient Descent',color='maroon')
-        ax.fill_between(changed_nodes, mse_gd_quartiles[0], mse_gd_quartiles[2], alpha=0.3, facecolor='maroon')
-        ax.set_xlabel(r'\# of nodes that changed',fontsize=32)
-        fig.suptitle(r'Evolution of $||\hat{\mathbf{X}}_t\hat{\mathbf{X}}_t^\top - \mathbf{P}_t||_F$',fontsize=40)
-        ax.legend(fancybox=True, shadow=True,fontsize=32)
-        fig.subplots_adjust(left=0.04,right=0.98,top=0.91,bottom=0.11)
+        fig,[ax1, ax2] = plt.subplots(nrows=1, ncols=2,figsize=(20,10))
+        ax1.set_xlim([-1.1, 1.1])
+        ax1.set_ylim([-1.25, 1])
+        
+        ax1.scatter(first_Xhat_gd[:,0],first_Xhat_gd[:,1],color='royalblue', label= f'GD at $t=1$') 
+        ax1.scatter(second_Xhat_gd[:,0],second_Xhat_gd[:,1],color='maroon',alpha=0.5,marker='X',label= f'GD at $t=2$') 
+        ax1.scatter(first_Xhat_lwi[:,0],first_Xhat_lwi[:,1],color='darksalmon',label= f'[Brand \'06] at $t=1$')
+        ax1.scatter(second_Xhat_lwi[:,0],second_Xhat_lwi[:,1],color='lightsalmon',marker='X',label= f'[Brand \'06] at $t=2$') 
+        
+        ax1.legend(fancybox=True, shadow=True,fontsize=32,ncol=2, handletextpad=0.01,columnspacing=0.1,borderpad=0.1)
+        ax1.set_title(r'$\hat{\mathbf{X}}_t$',fontsize=40)
+                    
+        ax2.plot(changed_nodes,mse_lwi_quartiles[1],label='[Brand \'06]',color='darksalmon')
+        ax2.fill_between(changed_nodes, mse_lwi_quartiles[0], mse_lwi_quartiles[2], alpha=0.3, facecolor='darksalmon')
+        ax2.plot(changed_nodes,mse_gd_quartiles[1],label='Gradient Descent',color='maroon')
+        ax2.fill_between(changed_nodes, mse_gd_quartiles[0], mse_gd_quartiles[2], alpha=0.3, facecolor='maroon')
+        ax2.set_xlabel(r'\# of nodes that changed',fontsize=32)
+        ax2.set_title(r'Evolution of $||\hat{\mathbf{X}}_t\hat{\mathbf{X}}_t^\top - \mathbf{P}_t||_F$',fontsize=40)
+        ax2.legend(fancybox=True, shadow=True,fontsize=32)
+        fig.subplots_adjust(left=0.06,right=0.98,top=0.91,bottom=0.11,wspace=0.08)
         
         if out_path is not None:
             plt.savefig(out_path+'error_brand.png',format='png')
