@@ -21,7 +21,7 @@ import traceback
 __all__ = []
 __version__ = 0.1
 __date__ = '2023-05-02'
-__updated__ = '2023-06-02'
+__updated__ = '2023-06-22'
 
 plt.close(fig='all')
 plt.rcParams['lines.linewidth'] = 3
@@ -114,6 +114,7 @@ USAGE
         if which_countries is not None:
             first_country = which_countries[0]
             countries_alignment = {country:{} for country in which_countries if country!=first_country}
+            countries_positions = {country:[] for country in which_countries}
         
         for graph, year in zip(all_graphs,years):
             if verbose:
@@ -140,6 +141,7 @@ USAGE
                 if first_country in nodes:
                     first_country_idx = nodes.index(first_country)
                     Xl_first_country = Xl[first_country_idx,:]
+                    countries_positions[first_country].append(Xl_first_country)
                     
                     for country in countries_alignment:
                         if country in nodes:
@@ -147,6 +149,7 @@ USAGE
                             Xl_test_country = Xl[test_country_idx,:]
                             alignment = np.dot(Xl_first_country,Xl_test_country)/(np.linalg.norm(Xl_first_country)*np.linalg.norm(Xl_test_country))
                             countries_alignment[country][year] = alignment
+                            countries_positions[country].append(Xl_test_country)
                         
             if out_path is not None:
                 plt.savefig(out_path+str(year)+'.png',format='png')
@@ -164,6 +167,20 @@ USAGE
             fig_angles.suptitle(f'Alignment with {which_countries[0]}')
             fig_angles.subplots_adjust(left=0.07,right=0.97,top=0.94,bottom=0.09,hspace=0.06)
             ax_angles.legend(loc='lower left',fancybox=True, shadow=True, ncol=3, fontsize=26, handletextpad=0.01,columnspacing=0.1,borderpad=0.1)
+            
+            colormaps = ['cividis', 'spring', 'summer', 'autumn', 'winter', 'copper']
+            
+            fig_positions, ax_positions = plt.subplots(figsize=[12,6],nrows=1,ncols=1)
+            
+            for idx, country in enumerate(countries_positions):
+                
+                positions_np = np.array(countries_positions[country])
+                ax_positions.quiver(positions_np[:-1,0],positions_np[:-1,1],positions_np[1:,0]-positions_np[:-1,0],positions_np[1:,1]-positions_np[:-1,1],
+                                    np.arange(positions_np.shape[0]-1), angles='xy',scale_units='xy', scale=1,cmap=colormaps[idx], width=0.005,)
+                ax_positions.scatter(positions_np[:,0],positions_np[:,1], c=np.arange(positions_np.shape[0]), alpha=0.5, s=100, cmap=colormaps[idx], marker=markers[idx], label=country)
+                
+            ax_positions.legend(loc='lower left',fancybox=True, shadow=True, ncol=2, fontsize=26, handletextpad=0.01,columnspacing=0.1,borderpad=0.1)
+
             
             plt.show()
     
